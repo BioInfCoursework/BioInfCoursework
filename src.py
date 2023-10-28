@@ -1,13 +1,9 @@
 
-# Import the Biopython functions we need.
-# Remember that you can look up BioPython functions here - https://biopython.org/docs/latest/api/Bio.html
 from Bio import SeqIO, pairwise2
 from Bio.Blast import NCBIWWW
 from Bio.Blast import NCBIXML
 from Bio import Entrez
 
-# PrettyTable is a nice package for formatting tables - https://pypi.org/project/prettytable/
-import prettytable
 from Bio.SeqRecord import SeqRecord
 from prettytable import PrettyTable
 
@@ -15,11 +11,8 @@ import datetime
 import random
 import statistics
 
-from Bio.Seq import Seq
 from Bio import pairwise2 as pw
-from Bio import AlignIO
 
-# PLEASE DONT FORGET TO SET YOUR EMAIL THIS IS GOOD ETIQUETTE FOR A SERVICE USER
 EMAIL = 'jamesalastairmaxwell@googlemail.com'
 
 
@@ -189,7 +182,15 @@ def Part2(ids):
 	print("Exons in the longest transcript but not the shortest:")
 	print(extras)
 
-	generate_blastx(extras)
+	c = 0
+	for e in extras:
+		# Write the sequence record to a FASTA file
+		record = SeqRecord(e, id=str(c), description="")
+		with open("output"+str(c)+".fasta", "w") as output_handle:
+			SeqIO.write(record, output_handle, "fasta")
+		c += 1
+
+	# generate_blastx(extras)
 
 
 def Part3():
@@ -202,12 +203,9 @@ def Part3():
 		record = Entrez.read(handle)
 		handle.close()
 
-		# print(query)
-		# print(record["IdList"])
-
 		cadherin_proteins.update(record["IdList"])
 
-	print(cadherin_proteins)  # maybe get accessions from this
+	print(cadherin_proteins)
 
 	CDH7_id = 296434420  # id for cadherin-7
 	cadherin_proteins.remove(str(CDH7_id))
@@ -231,20 +229,11 @@ def Part3():
 	for p in cadherin_alignments:
 		print(p)
 
-	closest_cadherins = [('190359622', 'CDH20'), ('116241276', 'CDH10'), ('3023435', 'CDH18')]#
+	print(len(cadherin_alignments))
+
+	closest_cadherins = [('190359622', 'CDH20'), ('116241276', 'CDH10'), ('3023435', 'CDH18')]
 	print("The Cadherins most similar to Cadherin-7 are:")
 	print(closest_cadherins)
-	closest_cadherin_isoform = '37999814'
-
-	handle = Entrez.efetch(db="protein", id=p, rettype="gb", retmode="text")
-	record = SeqIO.read(handle, "genbank")
-	handle.close()
-	comp_seq = record.seq
-
-
-# # Write the sequence record to a FASTA file
-# with open("output.fasta", "w") as output_handle:
-# 	SeqIO.write(record, output_handle, "fasta")
 
 
 def generate_blastx(extras):
@@ -301,7 +290,6 @@ def generate_score_distribution(seq1, seq2, filename, num_shuffles=1000):
 def read_score_distribution(filename):
 	f = open(filename, "r")
 	raw_text = f.read()
-	# print(raw_text)
 	distribution = raw_text.split(",")
 	distribution.pop()
 	scores = []
